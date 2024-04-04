@@ -1,0 +1,39 @@
+import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+# Given data
+years = np.array([2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
+values = np.array([0.01286305, 0.0377026, 0.05460825, 0.0516868, 0.0461108,
+                   0.04178855, 0.0368237, 0.0322728, 0.02617235, 0.01876715])
+
+# Normalize data
+years_normalized = (years - years.min()) / (years.max() - years.min())
+values_normalized = (values - values.min()) / (values.max() - values.min())
+
+# Define model
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(10, activation='relu', input_shape=(1,)),
+    tf.keras.layers.Dense(1)
+])
+
+# Compile model
+model.compile(optimizer='adam', loss='mean_squared_error')
+
+# Train model
+model.fit(years_normalized, values_normalized, epochs=1000, verbose=0)
+
+# Predict future 5-year values
+future_years = np.arange(2022, 2027)
+future_years_normalized = (future_years - years.min()) / (years.max() - years.min())
+predicted_values_normalized = model.predict(future_years_normalized)
+predicted_values = predicted_values_normalized * (values.max() - values.min()) + values.min()
+
+# Plot results
+plt.plot(years, values, 'bo-', label='Original Data')
+plt.plot(future_years, predicted_values, 'ro-', label='Predicted Data')
+plt.xlabel('Year')
+plt.ylabel('Value')
+plt.title('Predicted Future 5-Year Values')
+plt.legend()
+plt.show()
